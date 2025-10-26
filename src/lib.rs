@@ -313,6 +313,19 @@ impl ISyntaxLevel {
     ) -> Result<RgbaImage> {
         let mut buffer: Vec<u8> = vec![0; (width * height * 4) as usize];
 
+        self.read_region_buf(tile_x, tile_y, width, height, &mut buffer)?;
+        RgbaImage::from_vec(width as u32, height as u32, buffer)
+            .ok_or(ISyntaxError::ImageDecodeError)
+    }
+
+    pub fn read_region_buf(
+        &self,
+        tile_x: i64,
+        tile_y: i64,
+        width: i64,
+        height: i64,
+        buf: &mut Vec<u8>,
+    ) -> Result<()> {
         unsafe {
             let result: Result<_> = libisyntax::libisyntax_read_region(
                 self.isyntax,
@@ -322,13 +335,12 @@ impl ISyntaxLevel {
                 tile_y,
                 width,
                 height,
-                buffer.as_mut_ptr() as *mut u32,
+                buf.as_mut_ptr() as *mut u32,
                 libisyntax::isyntax_pixel_format_t_LIBISYNTAX_PIXEL_FORMAT_RGBA as i32,
             )
             .into();
             result?;
         }
-        RgbaImage::from_vec(width as u32, height as u32, buffer)
-            .ok_or(ISyntaxError::ImageDecodeError)
+        Ok(())
     }
 }
