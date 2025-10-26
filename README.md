@@ -24,3 +24,9 @@ fn main() -> Result<()> {
     Ok(())
 }
 ```
+
+## Notes
+
+* `ISyntax` isn't `Send` and making it `Send` caused issues. More work is needed on this.
+* The reader cache size (as defined in the original library) is hardcoded to 2000.
+* The original library has an ISyntax file, image and level. I've simplified this to just have the file and the level.
